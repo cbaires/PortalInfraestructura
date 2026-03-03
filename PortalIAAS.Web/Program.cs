@@ -1,8 +1,21 @@
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
 using PortalIAAS.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"));
+
+builder.Services.AddAuthorization(options =>
+{
+    // Requerir autenticación para todas las páginas por defecto
+    options.FallbackPolicy = options.DefaultPolicy;
+});
+
+builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
@@ -17,6 +30,9 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseAntiforgery();
 

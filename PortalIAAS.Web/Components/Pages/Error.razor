@@ -3,23 +3,27 @@
 
 <PageTitle>Error - PortalIAAS</PageTitle>
 
-<div class="container mt-5">
-    <div class="alert alert-danger">
-        <h1 class="display-4">Error</h1>
-        <p class="lead">Se produjo un error inesperado en la aplicación.</p>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudPaper Class="pa-8" Elevation="4">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+            <MudText Typo="Typo.h4" Class="mb-2">Error</MudText>
+            <MudText Typo="Typo.body1">Se produjo un error inesperado en la aplicación.</MudText>
+        </MudAlert>
 
         @if (ShowRequestId)
         {
-            <hr>
-            <p>
+            <MudDivider Class="my-4" />
+            <MudText Typo="Typo.body2" Class="mb-4">
                 <strong>Request ID:</strong> <code>@RequestId</code>
-            </p>
+            </MudText>
         }
 
-        <hr>
-        <a href="/" class="btn btn-primary">Volver al inicio</a>
-    </div>
-</div>
+        <MudDivider Class="my-4" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/" StartIcon="@Icons.Material.Filled.Home">
+            Volver al inicio
+        </MudButton>
+    </MudPaper>
+</MudContainer>
 
 @code{
     [CascadingParameter]

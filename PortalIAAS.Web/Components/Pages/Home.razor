@@ -1,20 +1,10 @@
 ﻿@page "/"
-@rendermode InteractiveServer
+@using PortalIAAS.Web.UI.Notificaciones
+@inject NotificacionService Notificacion;
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Dashboard - Portal IAAS</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<MudText Typo="Typo.h3" GutterBottom="true">Dashboard</MudText>
 
 @code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount /=currentCount ;
-    }
 }

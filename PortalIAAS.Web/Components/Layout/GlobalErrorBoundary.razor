@@ -8,27 +8,31 @@
         @{
             LogError(exception);
         }
-        <div class="error-boundary-container" role="alert">
-            <h4 class="error-boundary-heading">Error</h4>
-            <p class="error-boundary-message">Ha ocurrido un error inesperado en la aplicación.</p>
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+            <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+                <MudText Typo="Typo.h5" Class="mb-2">⚠️ Error</MudText>
+                <MudText Typo="Typo.body1" Class="mb-4">Ha ocurrido un error inesperado en la aplicación.</MudText>
 
-            @if (ShowDetails)
-            {
-                <hr class="error-boundary-divider">
-                <details class="error-boundary-details">
-                    <summary>Información técnica</summary>
-                    <pre>@exception.ToString()</pre>
-                </details>
-            }
+                @if (ShowDetails)
+                {
+                    <MudExpansionPanels>
+                        <MudExpansionPanel Text="Información técnica" Dense="true">
+                            <MudText Typo="Typo.body2" Class="mud-text-secondary">
+                                <pre style="white-space: pre-wrap; word-wrap: break-word;">@exception.ToString()</pre>
+                            </MudText>
+                        </MudExpansionPanel>
+                    </MudExpansionPanels>
+                }
 
-            <hr class="error-boundary-divider">
-            <button class="error-boundary-button" @onclick="Recover">
-                Intentar recuperar
-            </button>
-            <button class="error-boundary-button error-boundary-button-secondary" @onclick="ReloadPage">
-                Recargar página
-            </button>
-        </div>
+                <MudDivider Class="my-4" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Recover" Class="mr-2">
+                    Intentar recuperar
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="ReloadPage">
+                    Recargar página
+                </MudButton>
+            </MudAlert>
+        </MudContainer>
     </ErrorContent>
 </ErrorBoundary>
 

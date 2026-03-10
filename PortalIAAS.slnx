@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="PortalIAAS.Domain/PortalIAAS.Domain.csproj" Id="441c7979-3b7b-4eb8-bb1b-21d6340d6966" />
   <Project Path="PortalIAAS.Web/PortalIAAS.Web.csproj" />
 </Solution>

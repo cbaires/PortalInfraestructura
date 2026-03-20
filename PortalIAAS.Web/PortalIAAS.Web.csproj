@@ -17,4 +17,9 @@
     <Folder Include="Enums\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PortalIAAS.Application\PortalIAAS.Application.csproj" />
+    <ProjectReference Include="..\PortalIAAS.Infrastructure\PortalIAAS.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

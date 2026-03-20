@@ -1,7 +1,6 @@
 ﻿@inherits LayoutComponentBase
-@using Microsoft.AspNetCore.Components.Authorization
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation;
+@inject IUsuarioService Usuario;
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 <MudPopoverProvider />
@@ -40,11 +39,11 @@
                             <MudMenuItem Disabled="true" Class="pa-0">
                                 <div class="d-flex align-center pa-3">
                                     <MudAvatar Color="Color.Primary" Size="Size.Small" Class="mr-2">
-                                        @GetUserInitials(context.User.Identity?.Name)
+                                        @GetUserInitials(_usuario?.Nombre)
                                     </MudAvatar>
                                     <div style="overflow: hidden; flex: 1;">
                                         <MudText Typo="Typo.body2" Style="font-weight: 600;">@context.User.Identity?.Name</MudText>
-                                        <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@GetUserEmail(context.User)</MudText>
+                                        <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@(_usuario?.Correo)</MudText>
                                     </div>
                                 </div>
                             </MudMenuItem>
@@ -84,6 +83,8 @@
     private bool _drawerOpen = false;
     private bool _isDarkMode = false;
 
+    private UsuarioDto? _usuario;
+
     private MudTheme _theme = new MudTheme()
     {
         PaletteLight = new PaletteLight()
@@ -103,6 +104,18 @@
             DrawerBackground = "#27272f",
         }
     };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _usuario = await Usuario.ObtenerInformacionUsuarioAsync();
+        }
+        catch
+        {
+            _usuario = null;
+        }
+    }
 
     private void ToggleDrawer()
     {
@@ -125,15 +138,6 @@
 
         return userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
     }
-
-    private string GetUserEmail(System.Security.Claims.ClaimsPrincipal user)
-    {
-        var emailClaim = user.FindFirst(System.Security.Claims.ClaimTypes.Email)
-                      ?? user.FindFirst("preferred_username")
-                      ?? user.FindFirst("email");
-        return emailClaim?.Value ?? string.Empty;
-    }
-
 
     private void Logout()
     {

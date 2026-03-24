@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="PortalInfraestructura.Application/PortalInfraestructura.Application.csproj" Id="3581ccdc-6d4d-44f8-9e96-a692fb411e8d" />
+  <Project Path="PortalInfraestructura.Domain/PortalInfraestructura.Domain.csproj" Id="441c7979-3b7b-4eb8-bb1b-21d6340d6966" />
+  <Project Path="PortalInfraestructura.Infrastructure/PortalInfraestructura.Infrastructure.csproj" Id="12e7a666-a03c-4d4a-a78c-47b4b98522aa" />
+  <Project Path="PortalInfraestructura.Web/PortalInfraestructura.Web.csproj" />
+</Solution>

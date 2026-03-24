@@ -1,0 +1,193 @@
+@page "/notificaciones"
+@using PortalInfraestructura.Web.UI.Notificaciones
+@using System.Globalization
+@inject NotificacionService Notificacion
+
+<PageTitle>Notificaciones - Portal Infraestructura</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudText Typo="Typo.h4" Class="mb-4">Notificaciones</MudText>
+
+    <MudPaper Elevation="2" Class="pa-4 mb-4">
+        <div class="d-flex flex-column flex-sm-row align-sm-center justify-sm-space-between gap-3 mb-3">
+            <div class="d-flex align-center gap-3">
+                <MudText Typo="Typo.h6">
+                    @if (_filtroNotificacionesNoLeidasHabilitado)
+                    {
+                        <text>Notificaciones no leídas (@Notificacion.NotificacionesNoLeidas)</text>
+                    }
+                    else
+                    {
+                        <text>Todas las notificaciones (@Notificacion.TodasNotificaciones)</text>
+                    }
+                </MudText>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <MudButton Variant="@(!_filtroNotificacionesNoLeidasHabilitado ? Variant.Filled : Variant.Outlined)"
+                           Color="Color.Primary"
+                           OnClick="@AlternarFiltroNotificacionesNoLeidas"
+                           Disabled="@(!_filtroNotificacionesNoLeidasHabilitado)">
+                    Todas
+                </MudButton>
+                <MudButtonGroup OverrideStyles="false">
+                    <MudButton Variant="@(_filtroNotificacionesNoLeidasHabilitado? Variant.Filled: Variant.Outlined)"
+                               Color="Color.Primary"
+                               OnClick="@AlternarFiltroNotificacionesNoLeidas"
+                               Disabled="@(_filtroNotificacionesNoLeidasHabilitado)">
+                        No leídas
+                    </MudButton>
+                </MudButtonGroup>
+                @if (Notificacion.NotificacionesNoLeidas > 0)
+                {
+                    <MudButton Color="Color.Success"
+                               Variant="Variant.Filled"
+                               StartIcon="@Icons.Material.Filled.DoneAll"
+                               OnClick="MarcarTodasComoLeidas"
+                               FullWidth="true"
+                               Class="d-block d-sm-inline-block">
+                        Marcar todas como leídas
+                    </MudButton>
+                }
+            </div>
+        </div>
+
+        @if ((_filtroNotificacionesNoLeidasHabilitado ? Notificacion.ObtenerNotificacionesNoLeidas() : Notificacion.ObtenerNotificaciones()) is var notificaciones && notificaciones.Any())
+        {
+            <MudDivider Class="mb-3" />
+
+            <div class="d-flex flex-column gap-2">
+                @foreach (var notificacion in notificaciones)
+                {
+                    <MudPaper Elevation="1" Class="pa-3" Style="@GetNotificacionStyle(notificacion)">
+                        <div class="d-flex flex-column flex-sm-row align-start">
+                            <div class="mr-0 mr-sm-3 mb-2 mb-sm-0 d-flex justify-center justify-sm-start" style="width: 100%; max-width: 100%;">
+                                <MudIcon Icon="@EstiloNotificacion.ObtenerIcono(notificacion.Tipo)"
+                                         Color="@EstiloNotificacion.ObtenerColor(notificacion.Tipo)"
+                                         Size="Size.Large" />
+                            </div>
+                            <div style="flex: 1; width: 100%; min-width: 0;">
+                                <div class="d-flex flex-column flex-sm-row align-start justify-sm-space-between gap-2 mb-2">
+                                    <div class="d-flex align-center gap-2 flex-wrap" style="width: 100%;">
+                                        <MudText Typo="Typo.h6" Style="@(notificacion.Leida ? "" : "font-weight: 700; word-break: break-word;")">
+                                            @notificacion.Titulo
+                                        </MudText>
+                                        @if (!notificacion.Leida)
+                                        {
+                                            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Filled">
+                                                Nueva
+                                            </MudChip>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(notificacion.Origen))
+                                    {
+                                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Default" Class="mt-0 mt-sm-0">
+                                            @notificacion.Origen
+                                        </MudChip>
+                                    }
+                                </div>
+                                <MudText Typo="Typo.body1" Class="mb-2" Style="word-break: break-word;">
+                                    @notificacion.Mensaje
+                                </MudText>
+                                <div class="d-flex flex-column flex-sm-row align-start justify-sm-space-between gap-2">
+                                    <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                        @notificacion.Fecha.ToString("dd/MM/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture)
+                                    </MudText>
+                                    <div class="d-flex flex-column flex-sm-row gap-2" style="width: 100%; max-width: 100%;">
+                                        @if (!notificacion.Leida)
+                                        {
+                                            <MudButton Size="Size.Small"
+                                                       Variant="Variant.Text"
+                                                       Color="Color.Primary"
+                                                       StartIcon="@Icons.Material.Filled.Done"
+                                                       OnClick="@(() => MarcarComoLeida(notificacion.Id))"
+                                                       FullWidth="true"
+                                                       Class="justify-start justify-sm-center">
+                                                Marcar como leída
+                                            </MudButton>
+                                        }
+                                        <MudButton Size="Size.Small"
+                                                   Variant="Variant.Text"
+                                                   Color="Color.Error"
+                                                   StartIcon="@Icons.Material.Filled.Delete"
+                                                   OnClick="@(() => EliminarNotificacion(notificacion.Id))"
+                                                   FullWidth="true"
+                                                   Class="justify-start justify-sm-center">
+                                            Eliminar
+                                        </MudButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </MudPaper>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center pa-8">
+                <MudText Typo="Typo.h6" Class="mud-text-secondary">
+                    <text>Sin notificaciones</text>
+                </MudText>
+            </div>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private bool _filtroNotificacionesNoLeidasHabilitado = false;
+
+    protected override void OnInitialized()
+    {
+        Notificacion.OnNotificacionAgregada += ActualizarNotificaciones;
+        Notificacion.OnNotificacionEliminada += ActualizarNotificaciones;
+        Notificacion.OnNotificacionLeida += ActualizarNotificaciones;
+        Notificacion.OnTodasNotificacionLeidas += ActualizarNotificaciones;
+    }
+
+    private void AlternarFiltroNotificacionesNoLeidas()
+    {
+        _filtroNotificacionesNoLeidasHabilitado = !_filtroNotificacionesNoLeidasHabilitado;
+    }
+
+    private void ActualizarNotificaciones(Notificacion? notificacion = null)
+    {
+        StateHasChanged();
+    }
+
+    private void ActualizarNotificaciones()
+    {
+        ActualizarNotificaciones(null);
+    }
+
+    private void MarcarComoLeida(Guid id)
+    {
+        Notificacion.MarcarComoLeida(id);
+    }
+
+    private void MarcarTodasComoLeidas()
+    {
+        Notificacion.MarcarTodasComoLeidas();
+    }
+
+    private void EliminarNotificacion(Guid id)
+    {
+        Notificacion.Eliminar(id);
+    }
+
+    private string GetNotificacionStyle(Notificacion notificacion)
+    {
+        if (!notificacion.Leida)
+        {
+            return "border-left: 4px solid var(--mud-palette-primary);";
+        }
+        return string.Empty;
+    }
+
+    public void Dispose()
+    {
+        Notificacion.OnNotificacionAgregada -= ActualizarNotificaciones;
+        Notificacion.OnNotificacionEliminada -= ActualizarNotificaciones;
+        Notificacion.OnNotificacionLeida -= ActualizarNotificaciones;
+        Notificacion.OnTodasNotificacionLeidas -= ActualizarNotificaciones;
+    }
+}

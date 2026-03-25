@@ -6,6 +6,7 @@ using PortalInfraestructura.Application.Usuario.Services;
 using PortalInfraestructura.Infrastructure.Services.Usuario;
 using PortalInfraestructura.Web.Components;
 using PortalInfraestructura.Web.UI.Notificaciones;
+using PortalInfraestructura.Web.UI.Temas;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,8 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.HideTransitionDuration = 100;
     config.SnackbarConfiguration.RequireInteraction = false;
 });
+
+builder.Services.AddScoped<TemaService>();
 
 builder.Services.AddScoped<NotificacionService>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();

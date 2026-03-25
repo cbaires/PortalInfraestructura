@@ -1,7 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization;
+@using PortalInfraestructura.Web.UI.Temas
+@inject TemaService temaService;
 @inherits LayoutComponentBase;
+@implements IDisposable;
 
-<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudThemeProvider IsDarkMode="@(_temaActual == Tema.Oscuro)" Theme="_configuracionTema" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -16,12 +19,20 @@
         </div>
         <MudSpacer />
 
-        <!-- Botón de cambio de tema -->
-        <MudIconButton Icon="@(_isDarkMode? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
-                       Color="Color.Inherit"
-                       OnClick="@ToggleTheme"
-                       Title="@(_isDarkMode ? "Cambiar a tema claro" : "Cambiar a tema oscuro")" />
-
+        @if (_temaActual == Tema.Claro)
+        {
+            <MudIconButton Icon="@(Icons.Material.Filled.DarkMode)"
+                           Color="Color.Inherit"
+                           OnClick="async () => await CambiarTemaAsync(Tema.Oscuro)"
+                           Title="@("Cambiar a tema oscuro")" />
+        }
+        @if (_temaActual == Tema.Oscuro)
+        {
+            <MudIconButton Icon="@(Icons.Material.Filled.LightMode)"
+                           Color="Color.Inherit"
+                           OnClick="async () => await CambiarTemaAsync(Tema.Claro)"
+                           Title="@("Cambiar a tema claro")" />
+        }
         <!-- Menú de notificaciones -->
         <div style="display: flex; align-items: center;">
             <BadgeNotificaciones />
@@ -58,36 +69,41 @@
 
 @code {
     private bool _drawerOpen = false;
-    private bool _isDarkMode = false;
+    private Tema _temaActual;
+    private MudTheme? _configuracionTema;
 
-    private MudTheme _theme = new MudTheme()
+    protected override void OnInitialized()
     {
-        PaletteLight = new PaletteLight()
-        {
-            Primary = "rgb(17, 21, 46)",
-            Secondary = "#FF4081",
-            AppbarBackground = "rgb(17, 21, 46)",
-        },
-        PaletteDark = new PaletteDark()
-        {
-            Primary = "#f2CB3A",
-            PrimaryContrastText = "#4A4A4A",
-            Secondary = "#FF4081",
-            AppbarBackground = "#27272f",
-            Background = "#1a1a1f",
-            Surface = "#27272f",
-            DrawerBackground = "#27272f",
-        }
-    };
+        _configuracionTema = temaService.ConfiguracionTema;
+        temaService.OnTemaCambiado += ActualizarTema;
+    }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await temaService.InicializarTemaAsync();
+        }
+    }
+
+    private void ActualizarTema(Tema tema)
+    {
+        _temaActual = tema;
+        StateHasChanged();
+    }
+
+    private async Task CambiarTemaAsync(Tema tema)
+    {
+        await temaService.SeleccionarTema(tema);
+    }
 
     private void ToggleDrawer()
     {
         _drawerOpen = !_drawerOpen;
     }
 
-    private void ToggleTheme()
+    public void Dispose()
     {
-        _isDarkMode = !_isDarkMode;
+        temaService.OnTemaCambiado -= ActualizarTema;
     }
 }

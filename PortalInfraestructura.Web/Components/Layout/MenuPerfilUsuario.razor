@@ -1,5 +1,8 @@
-﻿@inject NotificacionService Notificacion;
-@inject IUsuarioService Usuario;
+﻿@using PortalInfraestructura.Application.Common.Exceptions
+@using PortalInfraestructura.Application.Common.Abstractions
+@using PortalInfraestructura.Application.Usuario.Queries.ObtenerInformacionUsuario
+@inject NotificacionService Notificacion;
+@inject IApplicationDispatcher Dispatcher;
 @inject NavigationManager Navigation;
 
 <MudMenu AnchorOrigin="Origin.BottomRight"
@@ -43,38 +46,37 @@
 @code {
     private UsuarioDto? _usuario;
 
-    [CascadingParameter]
-    private Task<AuthenticationState>? AuthState { get; set; }
-
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-        if (AuthState is not null)
+        try
         {
-            var authState = await AuthState;
-            if (authState.User.Identity is { IsAuthenticated: true })
+            _usuario = await Dispatcher.Send(new ObtenerInformacionUsuarioQuery());
+        }
+        catch (AppException ex)
+        {
+            _usuario = null;
+            Notificacion.Agregar(new Notificacion
             {
-                try
-                {
-                    _usuario = await Usuario.ObtenerInformacionUsuarioAsync();
-                }
-                catch (Exception)
-                {
-                    _usuario = null;
-                    Notificacion.Agregar(new Notificacion
-                    {
-                        Id = Guid.NewGuid(),
-                        Tipo = TipoNotificacion.Error,
-                        Titulo = "Error al cargar información del usuario",
-                        Mensaje = "No se pudo obtener la información del usuario. Por favor, inténtalo de nuevo más tarde.",
-                        Origen = "MainLayout",
-                        Fecha = DateTimeOffset.Now
-                    });
-                }
-            }
-            else
+                Id = Guid.NewGuid(),
+                Tipo = TipoNotificacion.Error,
+                Titulo = "Error al cargar información del usuario",
+                Mensaje = ex.Message,
+                Origen = "MainLayout",
+                Fecha = DateTimeOffset.Now
+            });
+        }
+        catch (Exception)
+        {
+            _usuario = null;
+            Notificacion.Agregar(new Notificacion
             {
-                _usuario = null;
-            }
+                Id = Guid.NewGuid(),
+                Tipo = TipoNotificacion.Error,
+                Titulo = "Error al cargar información del usuario",
+                Mensaje = "Ocurrió un error inesperado. Inténtalo de nuevo más tarde.",
+                Origen = "MainLayout",
+                Fecha = DateTimeOffset.Now
+            });
         }
     }
 

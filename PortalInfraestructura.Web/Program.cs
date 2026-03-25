@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using MudBlazor.Services;
-using PortalInfraestructura.Application.Usuario.Services;
-using PortalInfraestructura.Infrastructure.Services.Usuario;
+using PortalInfraestructura.Application;
+using PortalInfraestructura.Infrastructure;
 using PortalInfraestructura.Web.Components;
 using PortalInfraestructura.Web.UI.Notificaciones;
 using PortalInfraestructura.Web.UI.Temas;
@@ -36,7 +36,8 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddScoped<TemaService>();
 
 builder.Services.AddScoped<NotificacionService>();
-builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+builder.Services.AddApplicationCore();
+builder.Services.AddInfrastructure();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents(options =>

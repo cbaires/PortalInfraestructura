@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using PortalInfraestructura.Application.Common.Exceptions;
 using PortalInfraestructura.Application.Usuario.DTO;
-using PortalInfraestructura.Application.Usuario.Services;
+using PortalInfraestructura.Application.Usuario.Ports;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace PortalInfraestructura.Infrastructure.Services.Usuario
 {
-    public class UsuarioService(AuthenticationStateProvider authStateProvider) : IUsuarioService
+    public class UsuarioService(AuthenticationStateProvider authStateProvider) : IUsuarioProvider
     {
         private readonly AuthenticationStateProvider _authStateProvider = authStateProvider;
 

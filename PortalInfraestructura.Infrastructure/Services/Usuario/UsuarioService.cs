@@ -35,11 +35,11 @@ namespace PortalInfraestructura.Infrastructure.Services.Usuario
                 return string.Empty;
             }
 
-            var id = ObtenerClaim("oid");
+            var id = ObtenerClaim("http://schemas.microsoft.com/identity/claims/objectidentifier");
 
             if (string.IsNullOrEmpty(id))
             {
-                throw new ClaimsUsuarioException("No se encontró el claim 'oid' para identificar al usuario");
+                throw new ClaimsUsuarioException("No se encontró el claim para identificar al usuario");
             }
 
             var roles = user.FindAll("roles").Select(r => r.Value).ToList();
@@ -52,7 +52,7 @@ namespace PortalInfraestructura.Infrastructure.Services.Usuario
                 NombreCompleto = ObtenerClaim("name"),
                 Nombre = ObtenerClaim("given_name"),
                 Apellido = ObtenerClaim("family_name"),
-                IdTenant = ObtenerClaim("tid"),
+                IdTenant = ObtenerClaim("http://schemas.microsoft.com/identity/claims/tenantid", "tid"),
                 Emisor = ObtenerClaim("iss"),
                 Roles = [.. roles]
             };

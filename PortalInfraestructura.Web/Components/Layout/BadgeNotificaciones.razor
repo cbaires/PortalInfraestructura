@@ -1,7 +1,7 @@
-﻿@using PortalInfraestructura.Web.UI.Notificaciones;
-@using System.Globalization;
-@inject NotificacionService Notificacion;
-@inject ISnackbar Snackbar;
+﻿@using System.Globalization
+@implements IDisposable
+@inject NotificacionService Notificacion
+@inject ISnackbar Snackbar
 
 <MudBadge Content="@(Notificacion.NotificacionesNoLeidas)"
           Color="Color.Error"
@@ -79,37 +79,35 @@
     protected override void OnInitialized()
     {
         Notificacion.OnNotificacionAgregada += MostrarNotificacion;
-        Notificacion.OnNotificacionEliminada += EliminarNotificacion;
-        Notificacion.OnNotificacionLeida += MarcarNotificacionLeida;
-        Notificacion.OnTodasNotificacionLeidas += ActualizarEstadoNotificaciones;
+        Notificacion.OnNotificacionEliminada += ActualizarEstado;
+        Notificacion.OnNotificacionLeida += ActualizarEstado;
+        Notificacion.OnTodasNotificacionLeidas += ActualizarEstadoSinParametro;
     }
 
     private void MostrarNotificacion(Notificacion notificacion)
     {
-        Snackbar.Add(notificacion.Mensaje, EstiloNotificacion.ObtenerSeveridad(notificacion.Tipo));
-        ActualizarEstadoNotificaciones();
+        InvokeAsync(() =>
+        {
+            Snackbar.Add(notificacion.Mensaje, EstiloNotificacion.ObtenerSeveridad(notificacion.Tipo));
+            StateHasChanged();
+        });
     }
 
-    private void EliminarNotificacion(Notificacion notificacion)
+    private void ActualizarEstado(Notificacion notificacion)
     {
-        ActualizarEstadoNotificaciones();
+        InvokeAsync(StateHasChanged);
     }
 
-    private void MarcarNotificacionLeida(Notificacion notificacion)
+    private void ActualizarEstadoSinParametro()
     {
-        ActualizarEstadoNotificaciones();
-    }
-
-    private void ActualizarEstadoNotificaciones()
-    {
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
         Notificacion.OnNotificacionAgregada -= MostrarNotificacion;
-        Notificacion.OnNotificacionEliminada -= EliminarNotificacion;
-        Notificacion.OnNotificacionLeida -= MarcarNotificacionLeida;
-        Notificacion.OnTodasNotificacionLeidas -= ActualizarEstadoNotificaciones;
+        Notificacion.OnNotificacionEliminada -= ActualizarEstado;
+        Notificacion.OnNotificacionLeida -= ActualizarEstado;
+        Notificacion.OnTodasNotificacionLeidas -= ActualizarEstadoSinParametro;
     }
 }

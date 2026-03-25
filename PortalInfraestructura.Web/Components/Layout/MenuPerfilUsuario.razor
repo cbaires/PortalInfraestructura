@@ -1,0 +1,97 @@
+﻿@inject NotificacionService Notificacion;
+@inject IUsuarioService Usuario;
+@inject NavigationManager Navigation;
+
+<MudMenu AnchorOrigin="Origin.BottomRight"
+         TransformOrigin="Origin.TopRight"
+         Icon="@Icons.Material.Filled.AccountCircle"
+         Color="Color.Inherit"
+         Dense="true">
+    <ChildContent>
+        <div style="min-width: 250px; max-width: 300px;">
+
+            <!-- Header sin MudMenuItem -->
+            <div class="d-flex align-center pa-3">
+                <MudAvatar Color="Color.Primary" Size="Size.Small" Class="mr-2">
+                    @GetUserInitials(string.IsNullOrEmpty(_usuario?.Nombre) ? _usuario?.NombreCompleto : _usuario?.Nombre)
+                </MudAvatar>
+
+                <div style="overflow: hidden; flex: 1;">
+                    <MudText Typo="Typo.body2" Style="font-weight: 600;">
+                        @(string.IsNullOrEmpty(_usuario?.Nombre) ? _usuario?.NombreCompleto : _usuario?.Nombre)
+                    </MudText>
+
+                    <MudText Typo="Typo.caption"
+                             Class="mud-text-secondary"
+                             Style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block;"
+                             Title="@(string.IsNullOrEmpty(_usuario?.Correo) ? _usuario?.NombreUsuario : _usuario?.Correo)">
+                        @(string.IsNullOrEmpty(_usuario?.Correo) ? _usuario?.NombreUsuario : _usuario?.Correo)
+                    </MudText>
+                </div>
+            </div>
+
+            <MudDivider />
+
+            <!-- Acciones sí como MenuItem -->
+            <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="CerrarSesion">
+                Cerrar Sesión
+            </MudMenuItem>
+
+        </div>
+    </ChildContent>
+</MudMenu>
+@code {
+    private UsuarioDto? _usuario;
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? AuthState { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthState is not null)
+        {
+            var authState = await AuthState;
+            if (authState.User.Identity is { IsAuthenticated: true })
+            {
+                try
+                {
+                    _usuario = await Usuario.ObtenerInformacionUsuarioAsync();
+                }
+                catch (Exception)
+                {
+                    _usuario = null;
+                    Notificacion.Agregar(new Notificacion
+                    {
+                        Id = Guid.NewGuid(),
+                        Tipo = TipoNotificacion.Error,
+                        Titulo = "Error al cargar información del usuario",
+                        Mensaje = "No se pudo obtener la información del usuario. Por favor, inténtalo de nuevo más tarde.",
+                        Origen = "MainLayout",
+                        Fecha = DateTimeOffset.Now
+                    });
+                }
+            }
+            else
+            {
+                _usuario = null;
+            }
+        }
+    }
+
+    private string GetUserInitials(string? userName)
+    {
+        if (string.IsNullOrEmpty(userName))
+            return "U";
+
+        var parts = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+
+        return userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
+    }
+
+    private void CerrarSesion()
+    {
+        Navigation.NavigateTo("/logout", forceLoad: true);
+    }
+}

@@ -1,6 +1,5 @@
-﻿@inherits LayoutComponentBase
-@inject NavigationManager Navigation;
-@inject IUsuarioService Usuario;
+﻿@using Microsoft.AspNetCore.Components.Authorization;
+@inherits LayoutComponentBase;
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
 <MudPopoverProvider />
@@ -29,29 +28,7 @@
         </div>
         <AuthorizeView>
             <Authorized>
-                <MudMenu AnchorOrigin="Origin.BottomRight"
-                         TransformOrigin="Origin.TopRight"
-                         Icon="@Icons.Material.Filled.AccountCircle"
-                         Color="Color.Inherit"
-                         Dense="true">
-                    <ChildContent>
-                        <div style="min-width: 250px; max-width: 300px;">
-                            <MudMenuItem Disabled="true" Class="pa-0">
-                                <div class="d-flex align-center pa-3">
-                                    <MudAvatar Color="Color.Primary" Size="Size.Small" Class="mr-2">
-                                        @GetUserInitials(_usuario?.Nombre)
-                                    </MudAvatar>
-                                    <div style="overflow: hidden; flex: 1;">
-                                        <MudText Typo="Typo.body2" Style="font-weight: 600;">@context.User.Identity?.Name</MudText>
-                                        <MudText Typo="Typo.caption" Class="mud-text-secondary" Style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">@(_usuario?.Correo)</MudText>
-                                    </div>
-                                </div>
-                            </MudMenuItem>
-                            <MudDivider />
-                            <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="Logout">Cerrar Sesión</MudMenuItem>
-                        </div>
-                    </ChildContent>
-                </MudMenu>
+                <MenuPerfilUsuario />
             </Authorized>
             <NotAuthorized>
                 <MudIconButton Icon="@Icons.Material.Filled.Login" Color="Color.Inherit" Href="/login" />
@@ -83,8 +60,6 @@
     private bool _drawerOpen = false;
     private bool _isDarkMode = false;
 
-    private UsuarioDto? _usuario;
-
     private MudTheme _theme = new MudTheme()
     {
         PaletteLight = new PaletteLight()
@@ -105,17 +80,6 @@
         }
     };
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _usuario = await Usuario.ObtenerInformacionUsuarioAsync();
-        }
-        catch
-        {
-            _usuario = null;
-        }
-    }
 
     private void ToggleDrawer()
     {
@@ -125,22 +89,5 @@
     private void ToggleTheme()
     {
         _isDarkMode = !_isDarkMode;
-    }
-
-    private string GetUserInitials(string? userName)
-    {
-        if (string.IsNullOrEmpty(userName))
-            return "U";
-
-        var parts = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length >= 2)
-            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
-
-        return userName.Length > 0 ? userName[0].ToString().ToUpper() : "U";
-    }
-
-    private void Logout()
-    {
-        Navigation.NavigateTo("/logout", forceLoad: true);
     }
 }

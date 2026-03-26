@@ -10,6 +10,20 @@ namespace PortalInfraestructura.Infrastructure.Database
     {
         private readonly IConfiguration _configuration = configuration;
 
+        public NpgsqlConnection AbrirNuevaConexion(string nombreCadenaConexion)
+        {
+            var cadenaConexion = _configuration.GetConnectionString(nombreCadenaConexion);
+
+            if (string.IsNullOrWhiteSpace(cadenaConexion))
+            {
+                throw new AppException($"No se encontró la cadena de conexión '{nombreCadenaConexion}'.");
+            }
+
+            var conexion = new NpgsqlConnection(cadenaConexion);
+            conexion.Open();
+            return conexion;
+        }
+
         public async Task<NpgsqlConnection> AbrirNuevaConexionAsync(string nombreCadenaConexion, CancellationToken cancellationToken = default)
         {
             var cadenaConexion = _configuration.GetConnectionString(nombreCadenaConexion);

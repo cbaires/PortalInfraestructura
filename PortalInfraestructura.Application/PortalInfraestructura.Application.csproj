@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Menu\Services\" />
-    <Folder Include="Usuario\Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PortalInfraestructura.Domain\PortalInfraestructura.Domain.csproj" />
   </ItemGroup>
 

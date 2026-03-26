@@ -1,14 +1,11 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Authorization;
 using PortalInfraestructura.Application.Common.Exceptions;
 using PortalInfraestructura.Application.Usuario.DTO;
 using PortalInfraestructura.Application.Usuario.Ports;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace PortalInfraestructura.Infrastructure.Services.Usuario
+namespace PortalInfraestructura.Infrastructure.Usuario.Providers
 {
-    public class UsuarioService(AuthenticationStateProvider authStateProvider) : IUsuarioProvider
+    public class UsuarioProvider(AuthenticationStateProvider authStateProvider) : IUsuarioProvider
     {
         private readonly AuthenticationStateProvider _authStateProvider = authStateProvider;
 
@@ -19,7 +16,7 @@ namespace PortalInfraestructura.Infrastructure.Services.Usuario
 
             if (user == null || !(user.Identity?.IsAuthenticated ?? false))
             {
-                throw new UsuarioNoAutenticadoException("No se encontró un usuario autenticado");
+                throw new UsuarioNoIdentificadoException("No se encontró un usuario autenticado");
             }
 
             string ObtenerClaim(params string[] tipos)
@@ -39,7 +36,7 @@ namespace PortalInfraestructura.Infrastructure.Services.Usuario
 
             if (string.IsNullOrEmpty(id))
             {
-                throw new ClaimsUsuarioException("No se encontró el claim para identificar al usuario");
+                throw new UsuarioNoIdentificadoException("No se encontró el claim para identificar al usuario");
             }
 
             var roles = user.FindAll("roles").Select(r => r.Value).ToList();
